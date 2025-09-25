@@ -54,6 +54,9 @@ pipeline {
     // This section runs after all stages are complete
     post {
         always {
+            // Placeholder step to make the block valid
+            echo "Post-build cleanup steps are being skipped."
+            
             // This command is currently commented out for debugging.
             // When your pipeline is working, uncomment this to automatically destroy resources.
             // sh "cd terraform && terraform destroy -auto-approve -var='jenkins_server_ip=${env.JENKINS_SERVER_IP}'"
