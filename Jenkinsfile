@@ -8,12 +8,6 @@ pipeline {
             }
         }
         
-        stage('Checkout SCM') {
-            steps {
-                git branch: 'main', url: 'https://github.com/maheshmani789/devops-mini-project.git'
-            }
-        }
-
         stage('Provision Infrastructure') {
             steps {
                 script {
