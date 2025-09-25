@@ -5,21 +5,28 @@ pipeline {
         stage('Provision Infrastructure') {
             steps {
                 script {
+                    // Get the public IP of the Jenkins server
+                    def jenkinsIp = sh(
+                        script: 'curl ifconfig.me',
+                        returnStdout: true
+                    ).trim()
+                    echo "Jenkins IP is: ${jenkinsIp}"
+
                     // Initialize Terraform
                     sh 'cd terraform && terraform init'
 
-                    // Plan and apply the infrastructure
-                    sh 'cd terraform && terraform apply -auto-approve'
+                    // Plan and apply the infrastructure, passing the Jenkins IP
+                    sh "cd terraform && terraform apply -auto-approve -var='jenkins_server_ip=${jenkinsIp}'"
 
-                    // Get the server IP from Terraform output
-                    def serverIp = sh(
-                        script: 'cd terraform && terraform output -raw server_ip',
+                    // Get the web server IP from Terraform output
+                    def webServerIp = sh(
+                        script: 'cd terraform && terraform output -raw web_server_ip',
                         returnStdout: true
                     ).trim()
 
                     // Store the IP for the next stage
-                    env.SERVER_IP = serverIp
-                    echo "Server IP is: ${env.SERVER_IP}"
+                    env.WEB_SERVER_IP = webServerIp
+                    echo "Web Server IP is: ${env.WEB_SERVER_IP}"
                 }
             }
         }
@@ -27,21 +34,19 @@ pipeline {
         stage('Deploy Application') {
             steps {
                 sh """
-                # Generate a temporary Ansible inventory file
                 echo "[web_servers]" > ansible/inventory.ini
-                echo "${env.SERVER_IP}" >> ansible/inventory.ini
+                echo "${env.WEB_SERVER_IP}" >> ansible/inventory.ini
                 
-                # Run the Ansible playbook
                 cd ansible && ansible-playbook -i inventory.ini playbook.yml
                 """
             }
         }
     }
 
-    // Always clean up resources
     post {
         always {
-            sh 'cd terraform && terraform destroy -auto-approve'
+            // Re-enable this to destroy resources after the project is complete
+            // sh "cd terraform && terraform destroy -auto-approve -var='jenkins_server_ip=${env.JENKINS_SERVER_IP}'"
         }
     }
 }
