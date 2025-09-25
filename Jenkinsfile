@@ -34,19 +34,23 @@ pipeline {
         stage('Deploy Application') {
             steps {
                 sh """
+                # Generate a temporary Ansible inventory file
                 echo "[web_servers]" > ansible/inventory.ini
                 echo "${env.WEB_SERVER_IP}" >> ansible/inventory.ini
                 
+                # Run the Ansible playbook
                 cd ansible && ansible-playbook -i inventory.ini playbook.yml
                 """
             }
         }
     }
 
+    // This section runs after all stages are complete
     post {
         always {
-            // Re-enable this to destroy resources after the project is complete
-            // sh "cd terraform && terraform destroy -auto-approve -var='jenkins_server_ip=${env.JENKINS_SERVER_IP}'"
+            // This command is currently commented out for debugging.
+            // When your pipeline is working, uncomment this to automatically destroy resources.
+            // sh "cd terraform && terraform destroy -auto-approve"
         }
     }
 }
