@@ -10,8 +10,8 @@ variable "jenkins_server_ip" {
 }
 
 # Create a security group for the web server
-resource "aws_security_group" "web_server_sg" {
-  name        = "web_server_sg"
+resource "aws_security_group" "web_server_sg2" {
+  name        = "web_server_sg2"
   description = "Allow inbound traffic for web access and SSH from Jenkins"
 
   # Rule to allow HTTP traffic from anywhere
@@ -35,7 +35,7 @@ resource "aws_security_group" "web_server_sg" {
 resource "aws_instance" "web_server" {
   ami           = "ami-07f07a6e1060cd2a8"
   instance_type = "t2.micro"
-  vpc_security_group_ids = [aws_security_group.web_server_sg.id]
+  vpc_security_group_ids = [aws_security_group.web_server_sg2.id]
 
   user_data = <<-EOF
               #!/bin/bash
