@@ -36,6 +36,15 @@ resource "aws_instance" "web_server" {
   ami           = "ami-07f07a6e1060cd2a8"
   instance_type = "t2.micro"
   vpc_security_group_ids = [aws_security_group.web_server_sg.id]
+
+  user_data = <<-EOF
+              #!/bin/bash
+              sudo apt-get update
+              sudo apt-get install -y openssh-server
+              sudo systemctl start ssh
+              sudo systemctl enable ssh
+              EOF
+
   tags = {
     Name = "MyWebServer"
   }
