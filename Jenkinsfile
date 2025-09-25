@@ -2,6 +2,12 @@ pipeline {
     agent any
 
     stages {
+        stage('Clean Workspace') {
+            steps {
+                cleanWs()
+            }
+        }
+
         stage('Provision Infrastructure') {
             steps {
                 script {
@@ -50,7 +56,7 @@ pipeline {
         always {
             // This command is currently commented out for debugging.
             // When your pipeline is working, uncomment this to automatically destroy resources.
-            // sh "cd terraform && terraform destroy -auto-approve"
+            // sh "cd terraform && terraform destroy -auto-approve -var='jenkins_server_ip=${env.JENKINS_SERVER_IP}'"
         }
     }
 }
